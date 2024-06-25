@@ -1,0 +1,178 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// Product class
+class Product {
+    private String id;
+    private String name;
+    private double price;
+
+    public Product(String id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    @Override
+    public String toString() {
+        return "Product ID: " + id + ", Name: " + name + ", Price: $" + price;
+    }
+}
+
+// User class
+class User {
+    private String username;
+    private String password;
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+}
+
+// ShoppingCart class
+class ShoppingCart {
+    private List<Product> cartItems;
+
+    public ShoppingCart() {
+        this.cartItems = new ArrayList<>();
+    }
+
+    public void addProduct(Product product) {
+        cartItems.add(product);
+    }
+
+    public void removeProduct(String productId) {
+        cartItems.removeIf(product -> product.getId().equals(productId));
+    }
+
+    public double getTotalPrice() {
+        return cartItems.stream().mapToDouble(Product::getPrice).sum();
+    }
+
+    public void displayCart() {
+        if (cartItems.isEmpty()) {
+            System.out.println("Your cart is empty.");
+        } else {
+            System.out.println("Your cart contains:");
+            cartItems.forEach(System.out::println);
+            System.out.println("Total Price: $" + getTotalPrice());
+        }
+    }
+}
+
+// OnlineShoppingSystem class
+public class OnlineShoppingSystem {
+    private List<Product> productList;
+    private User user;
+    private ShoppingCart cart;
+
+    public OnlineShoppingSystem(User user) {
+        this.user = user;
+        this.cart = new ShoppingCart();
+        this.productList = new ArrayList<>();
+        populateProducts();
+    }
+
+    private void populateProducts() {
+        productList.add(new Product("1", "Laptop", 799.99));
+        productList.add(new Product("2", "Smartphone", 499.99));
+        productList.add(new Product("3", "Headphones", 149.99));
+    }
+
+    public void displayProducts() {
+        System.out.println("Available Products:");
+        productList.forEach(System.out::println);
+    }
+
+    public void addToCart(String productId) {
+        for (Product product : productList) {
+            if (product.getId().equals(productId)) {
+                cart.addProduct(product);
+                System.out.println(product.getName() + " added to cart.");
+                return;
+            }
+        }
+        System.out.println("Product not found.");
+    }
+
+    public void removeFromCart(String productId) {
+        cart.removeProduct(productId);
+        System.out.println("Product removed from cart.");
+    }
+
+    public void viewCart() {
+        cart.displayCart();
+    }
+
+    public void checkout() {
+        System.out.println("Checking out...");
+        cart.displayCart();
+        System.out.println("Thank you for your purchase!");
+        cart = new ShoppingCart();  // Reset cart after checkout
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        User user = new User("testuser", "password");
+        OnlineShoppingSystem system = new OnlineShoppingSystem(user);
+
+        System.out.println("Welcome " + user.getUsername() + "!");
+
+        while (true) {
+            System.out.println("\n1. View Products\n2. Add to Cart\n3. Remove from Cart\n4. View Cart\n5. Checkout\n6. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();  // Consume newline
+
+            switch (choice) {
+                case 1:
+                    system.displayProducts();
+                    break;
+                case 2:
+                    System.out.print("Enter product ID to add: ");
+                    String productIdToAdd = scanner.nextLine();
+                    system.addToCart(productIdToAdd);
+                    break;
+                case 3:
+                    System.out.print("Enter product ID to remove: ");
+                    String productIdToRemove = scanner.nextLine();
+                    system.removeFromCart(productIdToRemove);
+                    break;
+                case 4:
+                    system.viewCart();
+                    break;
+                case 5:
+                    system.checkout();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+}
